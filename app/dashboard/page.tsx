@@ -8,7 +8,7 @@ import { SubscribeToTrader } from '@/components/SubscribeToTrader';
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 import { ArrowRight, Shield, Zap, Lock, Activity, Eye, Disc } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 
 export default function Dashboard() {
   const { publicKey } = useWallet();
