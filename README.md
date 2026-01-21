@@ -109,7 +109,7 @@ npm run setup   # Or: npm run anchor-build && npm run codama:js
 
 This uses [Codama](https://github.com/codama-idl/codama) to generate a type-safe client from the Anchor IDL.
 
-## Learn More...
+## Learn More
 
 - [Solana Docs](https://solana.com/docs) - core concepts and guides
 - [Anchor Docs](https://www.anchor-lang.com/docs) - program development framework
