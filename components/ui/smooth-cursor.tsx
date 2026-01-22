@@ -183,6 +183,10 @@ if (!isMouseDown.current) {
       scale.set(1)
     }
 
+    const styleElement = document.createElement("style")
+    styleElement.innerHTML = `* { cursor: none !important; }`
+    document.head.appendChild(styleElement)
+
     window.addEventListener("mousemove", throttledMouseMove)
     window.addEventListener("mousedown", handleMouseDown)
     window.addEventListener("mouseup", handleMouseUp)
@@ -191,6 +195,7 @@ if (!isMouseDown.current) {
       window.removeEventListener("mousemove", throttledMouseMove)
       window.removeEventListener("mousedown", handleMouseDown)
       window.removeEventListener("mouseup", handleMouseUp)
+      document.head.removeChild(styleElement)
       if (rafId) cancelAnimationFrame(rafId)
       if (timeoutId) clearTimeout(timeoutId)
     }
@@ -206,7 +211,7 @@ if (!isMouseDown.current) {
         translateY: "-50%",
         rotate: rotation,
         scale: scale,
-        zIndex: 100,
+        zIndex: 9999,
         pointerEvents: "none",
         willChange: "transform",
       }}
