@@ -183,10 +183,6 @@ if (!isMouseDown.current) {
       scale.set(1)
     }
 
-    const styleElement = document.createElement("style")
-    styleElement.innerHTML = `* { cursor: none !important; }`
-    document.head.appendChild(styleElement)
-
     window.addEventListener("mousemove", throttledMouseMove)
     window.addEventListener("mousedown", handleMouseDown)
     window.addEventListener("mouseup", handleMouseUp)
@@ -195,7 +191,6 @@ if (!isMouseDown.current) {
       window.removeEventListener("mousemove", throttledMouseMove)
       window.removeEventListener("mousedown", handleMouseDown)
       window.removeEventListener("mouseup", handleMouseUp)
-      document.head.removeChild(styleElement)
       if (rafId) cancelAnimationFrame(rafId)
       if (timeoutId) clearTimeout(timeoutId)
     }

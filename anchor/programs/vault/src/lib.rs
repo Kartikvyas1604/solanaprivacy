@@ -100,8 +100,6 @@ pub mod vault {
         Ok(())
     }
 
-    /// Subscribe to a trading strategy
-    /// Users deposit funds and subscribe to follow a trader's strategy
     pub fn subscribe_to_strategy(
         ctx: Context<SubscribeToStrategy>,
         initial_deposit: u64,
@@ -117,7 +115,6 @@ pub mod vault {
 
         let clock = Clock::get()?;
 
-        // Transfer SOL from user to position PDA
         transfer(
             CpiContext::new(
                 ctx.accounts.system_program.to_account_info(),

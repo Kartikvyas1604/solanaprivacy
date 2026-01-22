@@ -79,7 +79,6 @@ describe("Spectre Protocol - Trading Strategy Platform", () => {
 
       console.log("  ✓ Strategy initialized, tx:", tx);
 
-      // Verify strategy account
       const strategy = await program.account.strategy.fetch(strategyPDA);
       expect(strategy.trader.toBase58()).to.equal(trader.publicKey.toBase58());
       expect(strategy.name).to.equal(STRATEGY_NAME);
