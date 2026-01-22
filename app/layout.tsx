@@ -34,7 +34,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${inter.variable} ${geistMono.variable} antialiased bg-black text-white`}>
-        {/* <SmoothCursor /> */}
+        <SmoothCursor />
         <WalletProvider>
           <ArciumProvider>
             {children}
