@@ -17,8 +17,6 @@ const BASIS_POINTS_DIVISOR: u64 = 10_000;
 pub mod vault {
     use super::*;
 
-    /// Initialize a new trading strategy
-    /// Traders create strategies that users can subscribe to
     pub fn initialize_strategy(
         ctx: Context<InitializeStrategy>,
         name: String,
@@ -117,7 +115,6 @@ pub mod vault {
             VaultError::InsufficientDeposit
         );
 
-        let position = &mut ctx.accounts.position;
         let clock = Clock::get()?;
 
         // Transfer SOL from user to position PDA
@@ -133,6 +130,7 @@ pub mod vault {
         )?;
 
         // Initialize position
+        let position = &mut ctx.accounts.position;
         position.user = ctx.accounts.user.key();
         position.strategy = ctx.accounts.strategy.key();
         position.initial_balance = initial_deposit;
@@ -200,35 +198,36 @@ pub mod vault {
     /// Settle performance fees
     /// Calculate and transfer fees based on profit
     pub fn settle_fees(ctx: Context<SettleFees>) -> Result<()> {
-        let position = &mut ctx.accounts.position;
-        let strategy = &ctx.accounts.strategy;
-        
-        require!(position.is_active, VaultError::PositionInactive);
+        require!(ctx.accounts.position.is_active, VaultError::PositionInactive);
 
         // Calculate profit
-        let profit = position.current_balance
-            .checked_sub(position.initial_balance)
+        let profit = ctx.accounts.position.current_balance
+            .checked_sub(ctx.accounts.position.initial_balance)
             .ok_or(VaultError::NoProfitToSettle)?;
 
         require!(profit > 0, VaultError::NoProfitToSettle);
 
         // Calculate fee: profit * performance_fee_bps / 10000
         let fee_amount = (profit as u128)
-            .checked_mul(strategy.performance_fee_bps as u128)
+            .checked_mul(ctx.accounts.strategy.performance_fee_bps as u128)
             .ok_or(VaultError::MathOverflow)?
             .checked_div(BASIS_POINTS_DIVISOR as u128)
             .ok_or(VaultError::MathOverflow)? as u64;
 
         require!(fee_amount > 0, VaultError::FeeAmountTooSmall);
 
-        // Transfer fee from position to trader
+        // Prepare seeds for transfer
+        let user_key = ctx.accounts.position.user;
+        let strategy_key = ctx.accounts.position.strategy;
+        let bump = ctx.accounts.position.bump;
         let position_seeds = &[
             b"position",
-            position.user.as_ref(),
-            position.strategy.as_ref(),
-            &[position.bump],
+            user_key.as_ref(),
+            strategy_key.as_ref(),
+            &[bump],
         ];
 
+        // Transfer fee from position to trader
         transfer(
             CpiContext::new_with_signer(
                 ctx.accounts.system_program.to_account_info(),
@@ -242,6 +241,7 @@ pub mod vault {
         )?;
 
         // Update position
+        let position = &mut ctx.accounts.position;
         position.current_balance = position.current_balance
             .checked_sub(fee_amount)
             .ok_or(VaultError::InsufficientBalance)?;
@@ -258,8 +258,8 @@ pub mod vault {
             .ok_or(VaultError::MathOverflow)?;
 
         emit!(FeesSettled {
-            user: position.user,
-            strategy: position.strategy,
+            user: user_key,
+            strategy: strategy_key,
             trader: strategy.trader,
             fee_amount,
             remaining_balance: position.current_balance,
@@ -271,19 +271,22 @@ pub mod vault {
 
     /// Unsubscribe from strategy and withdraw funds
     pub fn unsubscribe(ctx: Context<Unsubscribe>) -> Result<()> {
-        let position = &mut ctx.accounts.position;
-        require!(position.is_active, VaultError::PositionInactive);
+        require!(ctx.accounts.position.is_active, VaultError::PositionInactive);
 
-        let withdraw_amount = position.current_balance;
+        let withdraw_amount = ctx.accounts.position.current_balance;
         
-        // Transfer remaining balance back to user
+        // Prepare seeds for transfer
+        let user_key = ctx.accounts.position.user;
+        let strategy_key = ctx.accounts.position.strategy;
+        let bump = ctx.accounts.position.bump;
         let position_seeds = &[
             b"position",
-            position.user.as_ref(),
-            position.strategy.as_ref(),
-            &[position.bump],
+            user_key.as_ref(),
+            strategy_key.as_ref(),
+            &[bump],
         ];
 
+        // Transfer remaining balance back to user
         transfer(
             CpiContext::new_with_signer(
                 ctx.accounts.system_program.to_account_info(),
@@ -296,6 +299,7 @@ pub mod vault {
             withdraw_amount,
         )?;
 
+        let position = &mut ctx.accounts.position;
         position.is_active = false;
         position.current_balance = 0;
 
@@ -306,8 +310,8 @@ pub mod vault {
             .ok_or(VaultError::MathOverflow)?;
 
         emit!(UserUnsubscribed {
-            user: position.user,
-            strategy: position.strategy,
+            user: user_key,
+            strategy: strategy_key,
             withdrawn_amount: withdraw_amount,
             timestamp: Clock::get()?.unix_timestamp,
         });

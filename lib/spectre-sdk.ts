@@ -278,7 +278,7 @@ export class SpectreSDK {
 
     try {
       const strategies = await this.program.account.strategy.all();
-      return strategies.map((s) => ({
+      return strategies.map((s: any) => ({
         publicKey: s.publicKey,
         ...s.account,
       })) as Strategy[];
@@ -339,7 +339,7 @@ export class SpectreSDK {
         },
       ]);
 
-      return positions.map((p) => ({
+      return positions.map((p: any) => ({
         publicKey: p.publicKey,
         ...p.account,
       })) as UserPosition[];
