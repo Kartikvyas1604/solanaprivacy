@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useWallet, useConnection } from '@solana/wallet-adapter-react';
 import { PublicKey } from '@solana/web3.js';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { TrendingUp, Users, DollarSign, Activity, Star, Clock, AlertCircle, ArrowRight, Loader2 } from 'lucide-react';
 import { useStrategies } from '@/lib/hooks/useStrategies';
