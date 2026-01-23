@@ -4,7 +4,7 @@ use anchor_lang::system_program::{transfer, Transfer};
 #[cfg(test)]
 mod tests;
 
-declare_id!("4mog8e82CLaqu6YxuSgoyZQsnLWHhTLR9aQvPHg8sXfk");
+declare_id!("HbB8vSpkaaNpdcQSNX2L4Cd6uYGZuJRLy18wk5mXE2VV");
 
 // Constants for validation
 const MAX_NAME_LENGTH: usize = 50;
