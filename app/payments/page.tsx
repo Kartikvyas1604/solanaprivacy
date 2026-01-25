@@ -213,7 +213,7 @@ export default function PrivacyPaymentsPage() {
                 Get started with private payments on Solana
               </p>
             </div>
-            <ClientWalletButton className="w-full !bg-primary !text-black hover:!bg-primary/90" />
+            <ClientWalletButton className="w-full" />
           </CardContent>
         </Card>
       </div>
@@ -237,7 +237,7 @@ export default function PrivacyPaymentsPage() {
             <Button
               onClick={handleSetupAccount}
               disabled={loading}
-              className="w-full !bg-primary !text-black hover:!bg-primary/90"
+              className="w-full"
             >
               {loading ? (
                 <>
@@ -271,14 +271,14 @@ export default function PrivacyPaymentsPage() {
               <span className="text-[10px] text-neutral-500 ml-2">PRIVACY PAYMENTS</span>
             </div>
           </div>
-          <ClientWalletButton className="!bg-card !border !border-white/10 !text-white hover:!bg-white/5" />
+          <ClientWalletButton />
         </div>
       </header>
 
       <main className="max-w-6xl mx-auto p-6 md:p-12 space-y-8">
         
         {/* Balance Card */}
-        <Card className="bg-gradient-to-br from-primary/10 to-primary/5 border-primary/20">
+        <Card className="bg-linear-to-br from-primary/10 to-primary/5 border-primary/20">
           <CardHeader>
             <div className="flex items-center justify-between">
               <CardTitle className="flex items-center gap-2">
@@ -359,7 +359,7 @@ export default function PrivacyPaymentsPage() {
               <Button
                 type="submit"
                 disabled={sending || !recipient || !amount}
-                className="w-full !bg-primary !text-black hover:!bg-primary/90"
+                className="w-full"
               >
                 {sending ? (
                   <>
@@ -381,7 +381,7 @@ export default function PrivacyPaymentsPage() {
         {txSignature && (
           <Card className="bg-green-500/10 border-green-500/20">
             <CardContent className="p-6 flex items-start gap-4">
-              <CheckCircle2 className="w-6 h-6 text-green-400 flex-shrink-0" />
+              <CheckCircle2 className="w-6 h-6 text-green-400 shrink-0" />
               <div className="flex-1">
                 <h3 className="font-semibold text-green-400 mb-1">Transaction Successful</h3>
                 <p className="text-sm text-neutral-400 font-mono break-all">{txSignature}</p>
