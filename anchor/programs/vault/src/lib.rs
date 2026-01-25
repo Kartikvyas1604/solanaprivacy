@@ -1,6 +1,10 @@
 use anchor_lang::prelude::*;
 use anchor_lang::system_program::{transfer, Transfer};
 
+// Privacy Payments Module - Token-2022 Confidential Transfers
+mod privacy_payments;
+use privacy_payments::*;
+
 #[cfg(test)]
 mod tests;
 
@@ -16,6 +20,22 @@ const BASIS_POINTS_DIVISOR: u64 = 10_000;
 #[program]
 pub mod vault {
     use super::*;
+
+    // ========================================================================
+    // PRIVACY PAYMENT INSTRUCTIONS (Token-2022 Confidential Transfers)
+    // ========================================================================
+    
+    pub use crate::privacy_payments::{
+        initialize_confidential_mint,
+        initialize_user_account,
+        deposit_confidential,
+        transfer_confidential,
+        withdraw_confidential,
+    };
+
+    // ========================================================================
+    // COPY TRADING INSTRUCTIONS (Optional - for full Spectre Protocol)
+    // ========================================================================
 
     pub fn initialize_strategy(
         ctx: Context<InitializeStrategy>,
