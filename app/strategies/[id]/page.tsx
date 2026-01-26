@@ -90,9 +90,26 @@ export default function StrategyDetailPage() {
       alert('Successfully subscribed to strategy!');
       setIsSubscribed(true);
       await loadStrategy();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Subscription failed:', error);
-      alert('Failed to subscribe. Please try again.');
+      
+      let errorMsg = 'Failed to subscribe to strategy. ';
+      
+      if (error.message?.includes('already subscribed')) {
+        errorMsg = 'You are already subscribed to this strategy. Check your portfolio to manage your existing position.';
+      } else if (error.message?.includes('insufficient')) {
+        errorMsg = 'Insufficient balance. Please ensure you have enough SOL in your wallet.';
+      } else if (error.message?.includes('StrategyInactive')) {
+        errorMsg = 'This strategy is currently inactive and not accepting new subscribers.';
+      } else if (error.message?.includes('InsufficientDeposit')) {
+        errorMsg = 'Minimum deposit is 1 SOL. Please increase your deposit amount.';
+      } else if (error.message) {
+        errorMsg += error.message;
+      } else {
+        errorMsg += 'Please try again.';
+      }
+      
+      alert(errorMsg);
     } finally {
       setSubscribing(false);
     }

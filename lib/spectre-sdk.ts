@@ -148,6 +148,12 @@ export class SpectreSDK {
       throw new Error('Wallet not connected');
     }
 
+    // Check if user already has a position
+    const existingPosition = await this.getUserPosition(user, strategyKey);
+    if (existingPosition && existingPosition.isActive) {
+      throw new Error('You are already subscribed to this strategy');
+    }
+
     const [positionPDA] = this.getPositionAddress(user, strategyKey);
     const depositLamports = new BN(initialDeposit * LAMPORTS_PER_SOL);
 

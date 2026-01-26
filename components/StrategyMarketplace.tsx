@@ -6,8 +6,9 @@ import { useWallet, useConnection } from '@solana/wallet-adapter-react';
 import { PublicKey } from '@solana/web3.js';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { TrendingUp, Users, DollarSign, Activity, Star, Clock, AlertCircle, ArrowRight, Loader2 } from 'lucide-react';
+import { TrendingUp, Users, DollarSign, Activity, Star, Clock, AlertCircle, ArrowRight, Loader2, CheckCircle } from 'lucide-react';
 import { useStrategies } from '@/lib/hooks/useStrategies';
+import { useUserPositions } from '@/lib/hooks/useUserPositions';
 import { SpectreSDK } from '@/lib/spectre-sdk';
 import { formatNumber, formatPercent, timeAgo } from '@/lib/helpers';
 
@@ -16,9 +17,13 @@ export function StrategyMarketplace() {
   const { connection } = useConnection();
   const wallet = useWallet();
   const { strategies, loading, error, refreshStrategies } = useStrategies();
+  const { positions } = useUserPositions();
   const [subscribing, setSubscribing] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState<'subscribers' | 'volume' | 'fees'>('subscribers');
+
+  // Get list of strategy IDs user is subscribed to
+  const subscribedStrategyIds = new Set(positions.map(p => p.strategy));
 
   const handleSubscribe = async (strategyId: string) => {
     if (!wallet.publicKey || !wallet.signTransaction) {
@@ -47,9 +52,22 @@ export function StrategyMarketplace() {
       );
       alert('Successfully subscribed to strategy!');
       refreshStrategies();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Subscription failed:', error);
-      alert('Subscription failed. Please try again.');
+      
+      let errorMsg = 'Failed to subscribe to strategy. ';
+      
+      if (error.message?.includes('already subscribed')) {
+        errorMsg = 'You are already subscribed to this strategy. Check your portfolio to manage your existing position.';
+      } else if (error.message?.includes('insufficient')) {
+        errorMsg = 'Insufficient balance. Please ensure you have enough SOL in your wallet.';
+      } else if (error.message) {
+        errorMsg += error.message;
+      } else {
+        errorMsg += 'Please try again.';
+      }
+      
+      alert(errorMsg);
     } finally {
       setSubscribing(null);
     }
@@ -157,7 +175,10 @@ export function StrategyMarketplace() {
 
       {/* Strategies Grid */}
       <div className="grid md:grid-cols-2 gap-6">
-        {filteredStrategies.map((strategy) => (
+        {filteredStrategies.map((strategy) => {
+          const isSubscribed = subscribedStrategyIds.has(strategy.publicKey);
+          
+          return (
           <Card key={strategy.publicKey} className="bg-card/50 backdrop-blur border-white/10 hover:border-primary/50 transition-all duration-300">
             <CardHeader>
               <div className="flex items-start justify-between">
@@ -166,6 +187,12 @@ export function StrategyMarketplace() {
                     {strategy.name}
                     {strategy.isActive && (
                       <span className="inline-flex h-2 w-2 rounded-full bg-green-500" />
+                    )}
+                    {isSubscribed && (
+                      <span className="flex items-center gap-1 text-xs px-2 py-0.5 bg-blue-500/20 border border-blue-500/30 text-blue-400 rounded-full">
+                        <CheckCircle className="w-3 h-3" />
+                        Subscribed
+                      </span>
                     )}
                   </CardTitle>
                   <p className="text-xs text-neutral-500 mt-1 font-mono">
@@ -224,14 +251,20 @@ export function StrategyMarketplace() {
                 </Button>
                 <Button
                   onClick={() => handleSubscribe(strategy.publicKey)}
-                  disabled={subscribing === strategy.publicKey || !wallet.connected}
+                  disabled={subscribing === strategy.publicKey || !wallet.connected || isSubscribed}
                   size="sm"
-                  className="bg-primary text-black hover:bg-primary/90"
+                  className="bg-primary text-black hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed"
+                  title={isSubscribed ? 'Already subscribed - check your portfolio' : 'Subscribe to this strategy'}
                 >
                   {subscribing === strategy.publicKey ? (
                     <>
                       <Loader2 className="w-3 h-3 mr-1 animate-spin" />
                       Subscribing...
+                    </>
+                  ) : isSubscribed ? (
+                    <>
+                      <CheckCircle className="w-3 h-3 mr-1" />
+                      Subscribed
                     </>
                   ) : (
                     'Subscribe'
@@ -240,7 +273,7 @@ export function StrategyMarketplace() {
               </div>
             </CardContent>
           </Card>
-        ))}
+        )})}
       </div>
     </div>
   );
