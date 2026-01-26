@@ -78,9 +78,23 @@ export function PortfolioTracker() {
       await sdk.unsubscribe(wallet.publicKey, strategyPubkey);
       alert('Successfully unsubscribed and withdrawn funds!');
       refreshPositions();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Unsubscribe failed:', error);
-      alert('Failed to unsubscribe. Please try again.');
+      
+      let errorMsg = 'Failed to unsubscribe. ';
+      
+      if (error.message?.includes('Transfer: `from` must not carry data') || 
+          error.message?.includes('invalid program argument')) {
+        errorMsg = 'Unsubscribe feature is currently being updated. The program needs to be redeployed with the fix. Please contact the administrator or try again later.';
+      } else if (error.message?.includes('PositionInactive')) {
+        errorMsg = 'This position is already inactive.';
+      } else if (error.message) {
+        errorMsg += error.message;
+      } else {
+        errorMsg += 'Please try again.';
+      }
+      
+      alert(errorMsg);
     } finally {
       setUnsubscribing(null);
     }

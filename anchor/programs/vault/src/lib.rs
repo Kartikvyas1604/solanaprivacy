@@ -303,24 +303,13 @@ pub mod vault {
             &[bump],
         ];
 
-        // Transfer remaining balance back to user
-        transfer(
-            CpiContext::new_with_signer(
-                ctx.accounts.system_program.to_account_info(),
-                Transfer {
-                    from: ctx.accounts.position.to_account_info(),
-                    to: ctx.accounts.user.to_account_info(),
-                },
-                &[position_seeds],
-            ),
-            withdraw_amount,
-        )?;
+        // Transfer user's balance back (not including rent-exempt amount)
+        if withdraw_amount > 0 {
+            **ctx.accounts.position.to_account_info().try_borrow_mut_lamports()? -= withdraw_amount;
+            **ctx.accounts.user.to_account_info().try_borrow_mut_lamports()? += withdraw_amount;
+        }
 
-        let position = &mut ctx.accounts.position;
-        position.is_active = false;
-        position.current_balance = 0;
-
-        // Update strategy subscriber count
+        // Update strategy subscriber count before closing
         let strategy = &mut ctx.accounts.strategy;
         strategy.total_subscribers = strategy.total_subscribers
             .checked_sub(1)
@@ -333,6 +322,7 @@ pub mod vault {
             timestamp: Clock::get()?.unix_timestamp,
         });
 
+        // Account will be closed automatically by Anchor's close constraint
         Ok(())
     }
 }
@@ -501,6 +491,7 @@ pub struct Unsubscribe<'info> {
     
     #[account(
         mut,
+        close = user,
         seeds = [b"position", user.key().as_ref(), strategy.key().as_ref()],
         bump = position.bump,
         has_one = user,
