@@ -204,13 +204,13 @@ export function PortfolioTracker() {
           );
 
           return (
-            <Card key={position.strategyKey} className="bg-card/50 border-white/10 overflow-hidden">
+            <Card key={position.strategy} className="bg-card/50 border-white/10 overflow-hidden">
               <CardHeader className="border-b border-white/5">
                 <div className="flex items-start justify-between">
                   <div>
                     <CardTitle className="text-white">{position.strategyName}</CardTitle>
                     <p className="text-sm text-neutral-500 mt-1">
-                      {shortenAddress(position.strategyKey)}
+                      {shortenAddress(position.strategy)}
                     </p>
                   </div>
                   <div className={`flex items-center gap-1 px-3 py-1 rounded-full border ${
@@ -264,12 +264,12 @@ export function PortfolioTracker() {
 
                   <div className="flex gap-2">
                     <Button
-                      onClick={() => handleSettleFees(position.strategyKey)}
-                      disabled={settling === position.strategyKey}
+                      onClick={() => handleSettleFees(position.strategy)}
+                      disabled={settling === position.strategy}
                       variant="outline"
                       size="sm"
                     >
-                      {settling === position.strategyKey ? (
+                      {settling === position.strategy ? (
                         <>
                           <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                           Settling...
@@ -279,13 +279,13 @@ export function PortfolioTracker() {
                       )}
                     </Button>
                     <Button
-                      onClick={() => handleUnsubscribe(position.strategyKey)}
-                      disabled={unsubscribing === position.strategyKey}
+                      onClick={() => handleUnsubscribe(position.strategy)}
+                      disabled={unsubscribing === position.strategy}
                       variant="outline"
                       size="sm"
                       className="text-red-400 border-red-400/20 hover:bg-red-400/10"
                     >
-                      {unsubscribing === position.strategyKey ? (
+                      {unsubscribing === position.strategy ? (
                         <>
                           <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                           Unsubscribing...

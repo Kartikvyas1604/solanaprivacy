@@ -40,7 +40,8 @@ export function formatFeeBps(bps: number): string {
 /**
  * Shorten wallet address
  */
-export function shortenAddress(address: PublicKey | string, chars: number = 4): string {
+export function shortenAddress(address: PublicKey | string | undefined | null, chars: number = 4): string {
+  if (!address) return 'Unknown';
   const str = typeof address === 'string' ? address : address.toBase58();
   return `${str.slice(0, chars)}...${str.slice(-chars)}`;
 }
