@@ -10,7 +10,7 @@ import { WalletContextState } from '@solana/wallet-adapter-react';
 import vaultIdl from './vault-idl.json';
 
 // Program ID - Deployed on Solana Devnet
-export const PROGRAM_ID = new PublicKey('HbB8vSpkaaNpdcQSNX2L4Cd6uYGZuJRLy18wk5mXE2VV');
+export const PROGRAM_ID = new PublicKey('75GwXPYmQSpfSWBg6awrancWsejB19o1AfiGerdbrbtS');
 
 export interface Strategy {
   publicKey: PublicKey;

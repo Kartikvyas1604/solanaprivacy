@@ -8,7 +8,7 @@ use privacy_payments::*;
 #[cfg(test)]
 mod tests;
 
-declare_id!("HbB8vSpkaaNpdcQSNX2L4Cd6uYGZuJRLy18wk5mXE2VV");
+declare_id!("75GwXPYmQSpfSWBg6awrancWsejB19o1AfiGerdbrbtS");
 
 // Constants for validation
 const MAX_NAME_LENGTH: usize = 50;
