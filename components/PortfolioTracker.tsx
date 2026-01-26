@@ -27,9 +27,14 @@ export function PortfolioTracker() {
   const [settling, setSettling] = useState<string | null>(null);
   const [unsubscribing, setUnsubscribing] = useState<string | null>(null);
 
-  const handleSettleFees = async (strategyKey: string) => {
+  const handleSettleFees = async (strategyKey: string, hasProfit: boolean) => {
     if (!wallet.publicKey || !wallet.signTransaction) {
       alert('Please connect your wallet');
+      return;
+    }
+
+    if (!hasProfit) {
+      alert('No profit available to settle fees. Your position must have positive profit before fees can be settled.');
       return;
     }
 
@@ -40,9 +45,17 @@ export function PortfolioTracker() {
       await sdk.settleFees(wallet.publicKey, strategyPubkey);
       alert('Fees settled successfully!');
       refreshPositions();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Fee settlement failed:', error);
-      alert('Failed to settle fees. Please try again.');
+      
+      let errorMsg = 'Failed to settle fees.';
+      if (error.message?.includes('NoProfitToSettle')) {
+        errorMsg = 'No profit available to settle fees. Please wait for your position to be profitable.';
+      } else if (error.message) {
+        errorMsg = error.message;
+      }
+      
+      alert(errorMsg);
     } finally {
       setSettling(null);
     }
@@ -245,7 +258,14 @@ export function PortfolioTracker() {
                     </p>
                   </div>
                   <div>
-                    <p className="text-neutral-500 text-sm mb-1">Fees Paid</p>
+                    <div className="flex items-center gap-2 mb-1">
+                      <p className="text-neutral-500 text-sm">Fees Paid</p>
+                      {profit > 0 && (
+                        <span className="text-xs px-2 py-0.5 bg-yellow-500/20 border border-yellow-500/30 text-yellow-500 rounded-full">
+                          Fees Due
+                        </span>
+                      )}
+                    </div>
                     <p className="text-white font-semibold">{formatSOL(position.totalFeesPaid)} SOL</p>
                   </div>
                 </div>
@@ -264,10 +284,11 @@ export function PortfolioTracker() {
 
                   <div className="flex gap-2">
                     <Button
-                      onClick={() => handleSettleFees(position.strategy)}
-                      disabled={settling === position.strategy}
+                      onClick={() => handleSettleFees(position.strategy, profit > 0)}
+                      disabled={settling === position.strategy || profit <= 0}
                       variant="outline"
                       size="sm"
+                      title={profit <= 0 ? 'No profit available to settle' : 'Settle performance fees'}
                     >
                       {settling === position.strategy ? (
                         <>
